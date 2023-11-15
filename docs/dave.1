@@ -1,0 +1,82 @@
+.\" ---------------------------------------------------------------------------
+.\"   This is the man page for DaveGrohl (www.davegrohl.org)
+.\" ---------------------------------------------------------------------------
+
+.TH DAVE 1
+.SH NAME
+dave \- A password cracker for OS X
+
+
+.SH SYNOPSIS
+.B dave
+[\fB\-u\fR \fIUSERNAME\fR]
+
+
+.SH DESCRIPTION
+.B DaveGrohl
+is a brute-force password cracker for Mac OS X.  It's closer to binary masturbation rather than an actual practical tool.  Mac OS X throttles the time it takes to generate your password hash in order to make brute-force attacks more difficult.  If you want to learn more of the specifics, look up \fIPBKDF2\fR on the wikipedias or you can check out the actual \fICommonCrypto\fR code from opensource.apple.com.
+
+Out of the box, OS X uses a pretty secure hashing algorithm.  On my Macbook Pro (2018) Dave averages ~40 guesses per second, which makes me a sad panda.  However if you turn on Windows SMB file sharing, OS X is forced to store your password in a much less secure manner and Dave averages ~200,000 guesses per second.
+
+.SH USAGE
+.TP
+.B sudo ./dave -u samjackson
+.P
+This is the most basic usage of Dave.  This will attempt to crack the password for the user 'samjackson'.  By default, Dave will start two attacks.  The \fIincremental\fR attack will check every password between 0 and 16 digits long using the default character set of 'aeorisn1tl2md0cp3hbuk45g9687yfwjvzxq'.  By default, Dave does not check every possible password because that is insanely impractical.
+.P
+Dave will also check in the 'wordlists' directory for plain-text files to use in a \fIdictionary\fR attack.  A seperate thread will be created for each file found.  Once Dave is started, you can get a progress update by pressing SPACEBAR.
+
+.SH WARNING
+.B DaveGrohl
+is not shy about using all the processing power he has available.  Out of the box, Dave will peg all the machine's CPUs to 100% and your fans will start-a-blastin'.  \fIPlease\fR be carefull when using running Dave for long periods of time.  It's analagous to jacking up your car and leaving a cinder block on the gas pedal.  I expect your computer would last as long as the car.
+
+
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-characters =\fICHARS\fR
+This is where you can define your own custom character set to use.
+.TP
+.BR \-d ", " \-\-dictionary
+Runs only a dictionary attack.  Dave will look for plain-text wordlists in folder called wordlists.
+.TP
+.BR \-h ", " \-\-help
+I hope I don't actually need to tell you what this does.  I mean... I've met some \fIspecial\fR people, but you should really reconsider using or owning any object that requires electricity if you can't figure this one out.
+.TP
+.BR \-i ", " \-\-incremental
+Runs only an incremental attack.  By default, Dave will attempt every possible password that is 0 to 12 characters long and contains letters in the lower-case English alphabet and/or the ten Arabic numerals.
+.TP
+.BR \-I ", " \-\-info
+Show a little basic info about the machine Dave is running on.  This is not needed and will probably be taken out in the future.
+.TP
+.BR \-m ", " \-\-min =\fIDIGITS\fR
+Minimum length of the passwords attempted for the incremental attack.  The default is 0, which is equivelant to a blank password.
+.TP
+.BR \-M ", " \-\-max =\fIDIGITS\fR
+Maximum length of the passwords attempted for the incremental attack.  The default is 12.
+.TP
+.BR \-s ", " \-\-shadow =\fIUSERNAME\fR
+Dump a user's password hash to the screen without trying to crack it.
+.TP
+.BR \-t ", " \-\-timeout =\fISECONDS\fR
+Give up after a number of seconds.  Dave will return a non-zero if he has not found the password by this time. By default, Dave does not give up.
+.TP
+.BR \-T ", " \-\-threads =\fITHREADS\fR
+Specifies the number of threads Dave should use for the incremental attack.  By default, this is the number of processor cores the computer has.  Since nearly all computers are multi-core nowadays, this is probably most usefull for throttling Dave's performance.  Otherwise, Dave just pegs all the CPUs to 100%.
+.TP
+.BR \-u ", " \-\-user =\fIUSERNAME\fR
+Specify the username on which to perform the attack.  This usually requires root privileges.
+.TP
+.BR \-v ", " \-\-verbose
+Shows all guessed passwords.  This \fIseverely\fR slows Dave down.
+.TP
+.BR \-V ", " \-\-version
+Spit out some version info.
+.TP
+.BR \-x ", " \-\-hashcat =\fIUSERNAME\fR
+Dump a user's password hash formatted for Hashcat.  This is currently only compatible with hash mode 7100 macOS v10.8+ (PBKDF2-SHA512).
+
+.RS 11
+.B sudo ./dave --hashcat=USERNAME > hash.txt
+.br
+.B hashcat -m 7100 hash.txt wordlist.txt
+.RE
